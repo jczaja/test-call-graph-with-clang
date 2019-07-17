@@ -1,4 +1,7 @@
 #include <cstdio>
+#include "second.hpp"
+
+
 
 void little_func()
 {
@@ -14,5 +17,6 @@ int main()
 {
   little_func();
   inline_func();
+  myExternalFunction();
   return 0;
 }
