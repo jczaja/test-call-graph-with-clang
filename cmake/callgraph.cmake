@@ -26,15 +26,15 @@ function(make_callgraph)
     set(m4_args "")
     foreach(ARG ${ARGN})
         set(script "${script} include(${ARG})\n")
-        add_library(test-callgraph_${ARG} OBJECT ${ARG}) 
-        target_compile_options(test-callgraph_${ARG} PUBLIC ${CMAKE_C_FLAGS} -S -emit-llvm)
+        add_library(test-callgraph_${iter} OBJECT ${ARG}) 
+        target_compile_options(test-callgraph_${iter} PUBLIC ${CMAKE_C_FLAGS} -S -emit-llvm)
         add_custom_command(
         OUTPUT ${CMAKE_BINARY_DIR}/callgraph_${iter}.dot
-        COMMAND cat $<TARGET_OBJECTS:test-callgraph_${ARG}> | opt -analyze -dot-callgraph 
+        COMMAND cat $<TARGET_OBJECTS:test-callgraph_${iter}> | opt -analyze -dot-callgraph 
         COMMAND cat ${CMAKE_BINARY_DIR}/callgraph.dot | c++filt > ${CMAKE_BINARY_DIR}/callgraph_filt.dot
         COMMAND sed -i -f ${CMAKE_BINARY_DIR}/sed_script ${CMAKE_BINARY_DIR}/callgraph_filt.dot
         COMMAND gawk -f ${CMAKE_BINARY_DIR}/gawk_script ${CMAKE_BINARY_DIR}/callgraph_filt.dot >  ${CMAKE_BINARY_DIR}/callgraph_${iter}.dot
-        DEPENDS test-callgraph_${ARG})
+        DEPENDS test-callgraph_${iter})
         list(APPEND m4_args ${CMAKE_BINARY_DIR}/callgraph_${iter}.dot)
         math(EXPR iter "${iter}+1")
     endforeach()
