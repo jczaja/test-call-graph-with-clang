@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <vector>
 #include "second.hpp"
 
 
@@ -15,6 +16,8 @@ void inline_func()
 
 int main()
 {
+  std::vector<int> veciu(2);
+  
   little_func();
   inline_func();
   myExternalFunction();

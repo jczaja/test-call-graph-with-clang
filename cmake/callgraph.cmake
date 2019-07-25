@@ -9,7 +9,7 @@ file(WRITE "${CMAKE_BINARY_DIR}/merger.m4" "${script}")
 endfunction()
 
 function(create_sed_script)
-set(script "s,>,\\>,g; s,-\\>,->,g; s,<,\\<,g")
+set(script "s,>,\\>,g; s,-\\>,->,g; s,<,\\\\<,g; s,\\([^-]\\)>,\\1\\\\>,g")
 file(WRITE "${CMAKE_BINARY_DIR}/sed_script" "${script}")
 endfunction()
 
@@ -27,7 +27,7 @@ function(make_callgraph)
     foreach(ARG ${ARGN})
         set(script "${script} include(${ARG})\n")
         add_library(test-callgraph_${iter} OBJECT ${ARG}) 
-        target_compile_options(test-callgraph_${iter} PUBLIC ${CMAKE_C_FLAGS} -S -emit-llvm)
+        target_compile_options(test-callgraph_${iter} PRIVATE ${CMAKE_CXX_FLAGS} -S -emit-llvm)
         add_custom_command(
         OUTPUT ${CMAKE_BINARY_DIR}/callgraph_${iter}.dot
         COMMAND cat $<TARGET_OBJECTS:test-callgraph_${iter}> | opt -analyze -dot-callgraph 
