@@ -2,7 +2,7 @@
 #include <vector>
 #include "second.hpp"
 
-
+namespace paddle {
 
 void little_func()
 {
@@ -14,12 +14,15 @@ void inline_func()
   printf("inline func\n");
 }
 
+};
+
+
 int main()
 {
   std::vector<int> veciu(2);
   
-  little_func();
-  inline_func();
+  paddle::little_func();
+  paddle::inline_func();
   myExternalFunction();
   return 0;
 }

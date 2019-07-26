@@ -14,7 +14,29 @@ file(WRITE "${CMAKE_BINARY_DIR}/sed_script" "${script}")
 endfunction()
 
 function(create_gawk_script)
-set(script "/external node/{id=$1} $1 != id")
+#set(script "/external node/{id=$1} $1 != id")
+set(script "
+BEGIN{i = 0}
+
+/shape/{  
+if (!index($0, \"paddle\") && !index($0, \"main\") ) { 
+  unwanted[i] = $1
+  i = i + 1
+  next
+}
+}
+
+/*/
+{
+    for(j=0; j<i;++j) {
+       if(index($0,unwanted[j])) {
+           next
+       }
+    }
+    print $0
+}
+")
+
 file(WRITE "${CMAKE_BINARY_DIR}/gawk_script" "${script}")
 endfunction()
 
