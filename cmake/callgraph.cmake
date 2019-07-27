@@ -140,8 +140,8 @@ function(make_callgraph)
     add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/callgraph_merged.pdf
     COMMAND m4 ${CMAKE_BINARY_DIR}/merger.m4 > ${CMAKE_BINARY_DIR}/callgraph_combined.dot
-    COMMAND gawk -f  ${CMAKE_BINARY_DIR}/gawk_second_script ${CMAKE_BINARY_DIR}/callgraph_combined.dot >  ${CMAKE_BINARY_DIR}/callgraph_merged.dot
-
+    COMMAND gawk -f  ${CMAKE_BINARY_DIR}/gawk_second_script ${CMAKE_BINARY_DIR}/callgraph_combined.dot >  ${CMAKE_BINARY_DIR}/callgraph_merged_raw.dot
+    COMMAND uniq  ${CMAKE_BINARY_DIR}/callgraph_merged_raw.dot ${CMAKE_BINARY_DIR}/callgraph_merged.dot
     COMMAND dot -Tpdf ${CMAKE_BINARY_DIR}/callgraph_merged.dot -o ${CMAKE_BINARY_DIR}/callgraph_merged.pdf
     DEPENDS ${m4_args})
 
