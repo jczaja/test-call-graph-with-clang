@@ -16,25 +16,48 @@ endfunction()
 function(create_gawk_script)
 #set(script "/external node/{id=$1} $1 != id")
 set(script "
-BEGIN{i = 0}
+BEGIN{i = 0; e = 0; print(\"digraph {\")}
 
 /shape/{  
-if (!index($0, \"paddle\") && !index($0, \"main\") ) { 
-  unwanted[i] = $1
+if (index($0, \"paddle\") || index($0, \"main\") ) { 
+  whitelist[i] = $1
   i = i + 1
-  next
+  print($0)
 }
+  next
 }
 
 /*/
 {
-    for(j=0; j<i;++j) {
-       if(index($0,unwanted[j])) {
-           next
-       }
-    }
-    print $0
+   if(index($0,\"shape\")) {
+       next
+   }
+
+   if(index($1,\"Node0x\")) {
+        edges[e] = $0
+        e = e + 1
+        next
+   }
 }
+
+END {
+
+  for(l = 0; l<e; ++l) { 
+ 
+    candidate = edges[l] 
+    for(j=0; j<i;++j) {
+       if(index(edges[l],whitelist[j])) {
+          for(k=0; k<i;++k) {
+              if((k!=j) && index(edges[l],whitelist[k])) {
+                  print(edges[l])
+              }
+          }
+     }
+  }
+  }
+  print(\"}\")
+}
+
 ")
 
 file(WRITE "${CMAKE_BINARY_DIR}/gawk_script" "${script}")

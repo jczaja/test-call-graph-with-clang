@@ -23,6 +23,6 @@ int main()
   
   paddle::little_func();
   paddle::inline_func();
-  myExternalFunction();
+  paddle::myExternalFunction();
   return 0;
 }
