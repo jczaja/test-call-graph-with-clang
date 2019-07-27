@@ -14,7 +14,6 @@ file(WRITE "${CMAKE_BINARY_DIR}/sed_script" "${script}")
 endfunction()
 
 function(create_gawk_script)
-#set(script "/external node/{id=$1} $1 != id")
 set(script "
 BEGIN{i = 0; e = 0; print(\"digraph {\")}
 
@@ -59,12 +58,65 @@ END {
 }
 
 ")
-
 file(WRITE "${CMAKE_BINARY_DIR}/gawk_script" "${script}")
 endfunction()
 
+
+function(create_gawk_second_script)
+set(script "
+
+/shape/{  
+
+if(functions[$2]) {
+   transitions[$1] = functions[$2]
+   next
+} else {
+  functions[$2] = $1
+   print($0)
+   next
+}
+
+}
+
+/*/
+{
+   if(index($0,\"shape\")) {
+       next
+   }
+
+   if(index($1,\"Node0x\")) {
+
+        if(transitions[$1]) {
+           A = transitions[$1]
+        } else {
+           A = $1
+        }
+
+        if(transitions[$3]) {
+           B = transitions[$3]
+        } else {
+           B = $3
+        }
+
+        print(A \" -> \" B )
+
+        next
+   }
+
+   print($0)
+}
+
+")
+file(WRITE "${CMAKE_BINARY_DIR}/gawk_second_script" "${script}")
+endfunction()
+
+
+
+
+
 create_sed_script()
 create_gawk_script()
+create_gawk_second_script()
 
 function(make_callgraph)
     set(iter "0")
@@ -87,7 +139,9 @@ function(make_callgraph)
 
     add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/callgraph_merged.pdf
-    COMMAND m4 ${CMAKE_BINARY_DIR}/merger.m4 > ${CMAKE_BINARY_DIR}/callgraph_merged.dot
+    COMMAND m4 ${CMAKE_BINARY_DIR}/merger.m4 > ${CMAKE_BINARY_DIR}/callgraph_combined.dot
+    COMMAND gawk -f  ${CMAKE_BINARY_DIR}/gawk_second_script ${CMAKE_BINARY_DIR}/callgraph_combined.dot >  ${CMAKE_BINARY_DIR}/callgraph_merged.dot
+
     COMMAND dot -Tpdf ${CMAKE_BINARY_DIR}/callgraph_merged.dot -o ${CMAKE_BINARY_DIR}/callgraph_merged.pdf
     DEPENDS ${m4_args})
 
