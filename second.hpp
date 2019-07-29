@@ -1,0 +1,4 @@
+namespace paddle
+{
+   void myExternalFunction();
+}
