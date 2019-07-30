@@ -1,5 +1,6 @@
 function(create_m4_script)
 set(script "digraph { \n")
+set(script "${script} rankdir=LR\n")
 set(script "${script} define(`digraph',`subgraph')\n")
 foreach(ARG ${ARGN})
     set(script "${script} include(${ARG})\n")
@@ -9,7 +10,7 @@ file(WRITE "${CMAKE_BINARY_DIR}/merger.m4" "${script}")
 endfunction()
 
 function(create_sed_script)
-set(script "s,>,\\>,g; s,-\\>,->,g; s,<,\\\\<,g; s,\\([^-]\\)>,\\1\\\\>,g")
+set(script "s,>,\\>,g; s,-\\>,->,g; s,<,\\\\<,g; s,\\([^-]\\)>,\\1\\\\>,g; s,{,\\\\{,g; s,},\\\\},g")
 file(WRITE "${CMAKE_BINARY_DIR}/sed_script" "${script}")
 endfunction()
 
