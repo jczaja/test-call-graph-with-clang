@@ -22,7 +22,6 @@ foreach(ARG ${ARGN})
 set(condition "${condition} index($0, \"${ARG}\") ||")
 endforeach()
 set(condition "${condition} FALSE) {")
-message(STATUS "Print: ${condition}")
 endmacro()
 
 # GAWK script to limit interest of callgraph to
@@ -128,6 +127,10 @@ file(WRITE "${CMAKE_BINARY_DIR}/gawk_second_script" "${script}")
 endfunction()
 
 function(make_callgraph)
+    # Only Clang is supported
+    if(NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
+      message(FATAL_ERROR "ERROR: Please specify C++ compiler to be clang++ eg. export CXX=clang++ ")
+    endif()
     create_sed_script()
     create_gawk_script(${ARGV0})
     create_gawk_second_script()
