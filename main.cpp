@@ -14,7 +14,13 @@ void inline_func()
   printf("inline func\n");
 }
 
+int notused()
+{
+   printf("not called\n");
+   return 0;
+}
 };
+
 
 
 int main()

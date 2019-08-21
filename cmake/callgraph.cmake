@@ -1,3 +1,5 @@
+# Script that creates one diraph out of 
+# multiple given eg. combine callgraphs into one
 function(create_m4_script)
 set(script "digraph { \n")
 set(script "${script} rankdir=LR\n")
@@ -14,12 +16,26 @@ set(script "s,>,\\>,g; s,-\\>,->,g; s,<,\\\\<,g; s,\\([^-]\\)>,\\1\\\\>,g; s,{,\
 file(WRITE "${CMAKE_BINARY_DIR}/sed_script" "${script}")
 endfunction()
 
+macro(create_gawk_condition)
+set(condition "if (")
+foreach(ARG ${ARGN})
+set(condition "${condition} index($0, \"${ARG}\") ||")
+endforeach()
+set(condition "${condition} FALSE) {")
+message(STATUS "Print: ${condition}")
+endmacro()
+
+# GAWK script to limit interest of callgraph to
+# functions containing any of given patterns
 function(create_gawk_script)
+set(patterns_list ${ARGV0})
+separate_arguments(patterns_list)
+create_gawk_condition(${patterns_list})
 set(script "
 BEGIN{i = 0; e = 0; print(\"digraph {\")}
 
 /shape/{  
-if (index($0, \"paddle\") || index($0, \"main\") ) { 
+  ${condition}
   whitelist[i] = $1
   i = i + 1
   print($0)
@@ -111,18 +127,14 @@ if(functions[$2]) {
 file(WRITE "${CMAKE_BINARY_DIR}/gawk_second_script" "${script}")
 endfunction()
 
-
-
-
-
-create_sed_script()
-create_gawk_script()
-create_gawk_second_script()
-
 function(make_callgraph)
+    create_sed_script()
+    create_gawk_script(${ARGV0})
+    create_gawk_second_script()
     set(iter "0")
     set(m4_args "")
     foreach(ARG ${ARGN})
+        if(NOT(ARG STREQUAL ARGV0))
         set(script "${script} include(${ARG})\n")
         add_library(test-callgraph_${iter} OBJECT ${ARG}) 
         target_compile_options(test-callgraph_${iter} PRIVATE ${CMAKE_CXX_FLAGS} -S -emit-llvm)
@@ -135,6 +147,7 @@ function(make_callgraph)
         DEPENDS test-callgraph_${iter})
         list(APPEND m4_args ${CMAKE_BINARY_DIR}/callgraph_${iter}.dot)
         math(EXPR iter "${iter}+1")
+        endif()
     endforeach()
     create_m4_script(${m4_args})
 

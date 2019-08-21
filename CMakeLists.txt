@@ -7,5 +7,6 @@ add_definitions(-I${CMAKE_CURRENT_SOURCE_DIR})
 # make_callgraph function available 
 include(cmake/callgraph.cmake)
 
-make_callgraph(main.cpp second.cpp)
+# Example usage: make_callgraph("<space separated patterns to be present in functions callgraph>" <source1.cpp> <source1.cpp>...)
+make_callgraph("paddle main" main.cpp second.cpp)
 
